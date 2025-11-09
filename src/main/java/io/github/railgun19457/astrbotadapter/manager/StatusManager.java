@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -13,6 +14,9 @@ import java.lang.management.MemoryUsage;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @SuppressWarnings("deprecation") // Some deprecated methods are used for compatibility
 public class StatusManager {
@@ -49,8 +53,46 @@ public class StatusManager {
     
     /**
      * Get complete server status
+     * This method is thread-safe and can be called from any thread
      */
     public JsonObject getStatus() {
+        // If we're already on the main thread, get status directly
+        if (Bukkit.isPrimaryThread()) {
+            return getStatusSync();
+        }
+        
+        // Otherwise, schedule on main thread and wait for result
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    JsonObject status = getStatusSync();
+                    future.complete(status);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            }
+        }.runTask(plugin);
+        
+        try {
+            // Wait up to 5 seconds for the result
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            plugin.getLogger().warning("Failed to get status: " + e.getMessage());
+            // Return basic status on error
+            JsonObject errorStatus = new JsonObject();
+            errorStatus.addProperty("online", true);
+            errorStatus.addProperty("error", "Failed to get complete status: " + e.getMessage());
+            return errorStatus;
+        }
+    }
+    
+    /**
+     * Get server status synchronously (must be called from main thread)
+     */
+    private JsonObject getStatusSync() {
         JsonObject status = new JsonObject();
         
         // Basic info
@@ -90,8 +132,43 @@ public class StatusManager {
     
     /**
      * Get detailed players information
+     * This method is thread-safe and can be called from any thread
      */
     public JsonObject getPlayersInfo() {
+        // If we're already on the main thread, get info directly
+        if (Bukkit.isPrimaryThread()) {
+            return getPlayersInfoSync();
+        }
+        
+        // Otherwise, schedule on main thread and wait for result
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    JsonObject info = getPlayersInfoSync();
+                    future.complete(info);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            }
+        }.runTask(plugin);
+        
+        try {
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            plugin.getLogger().warning("Failed to get players info: " + e.getMessage());
+            JsonObject errorInfo = new JsonObject();
+            errorInfo.addProperty("error", "Failed to get players info: " + e.getMessage());
+            return errorInfo;
+        }
+    }
+    
+    /**
+     * Get players information synchronously (must be called from main thread)
+     */
+    private JsonObject getPlayersInfoSync() {
         JsonObject info = new JsonObject();
         
         info.addProperty("online", Bukkit.getOnlinePlayers().size());

@@ -13,15 +13,32 @@ public class ChatListener implements Listener {
     
     private final AstrbotAdapter plugin;
     private final String forwardPrefix;
+    private final boolean usePaperEvent;
     
     public ChatListener(AstrbotAdapter plugin) {
         this.plugin = plugin;
         this.forwardPrefix = plugin.getConfig().getString("message.forward-prefix", "");
+        
+        // Detect if Paper's AsyncChatEvent is available
+        boolean paperEventAvailable = false;
+        try {
+            Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
+            paperEventAvailable = true;
+            plugin.getLogger().info("Using Paper AsyncChatEvent");
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("Using Spigot AsyncPlayerChatEvent");
+        }
+        this.usePaperEvent = paperEventAvailable;
     }
     
     // For Paper servers (1.19+)
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAsyncChat(AsyncChatEvent event) {
+        // Only handle this event if Paper event is available
+        if (!usePaperEvent) {
+            return;
+        }
+        
         try {
             String player = event.getPlayer().getName();
             String message = PlainTextComponentSerializer.plainText().serialize(event.message());
@@ -32,14 +49,19 @@ public class ChatListener implements Listener {
                 String forwardMessage = removePrefix(message);
                 plugin.getMessageManager().sendToExternal(player, forwardMessage);
             }
-        } catch (NoClassDefFoundError e) {
-            // Event not available, ignore
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error handling AsyncChatEvent: " + e.getMessage());
         }
     }
     
     // For Spigot/older Paper servers
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+        // Only handle this event if Paper event is NOT available
+        if (usePaperEvent) {
+            return;
+        }
+        
         String player = event.getPlayer().getName();
         String message = event.getMessage();
         
