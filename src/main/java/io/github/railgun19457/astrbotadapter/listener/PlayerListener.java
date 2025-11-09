@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.listener;
+package io.github.railgun19457.astrbotadapter.listener;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -9,9 +9,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     
-    public PlayerListener(AstrbotAdaptor plugin) {
+    public PlayerListener(AstrbotAdapter plugin) {
         this.plugin = plugin;
     }
     

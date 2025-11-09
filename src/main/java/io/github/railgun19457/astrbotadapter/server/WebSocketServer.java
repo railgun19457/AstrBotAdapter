@@ -1,16 +1,16 @@
-package io.github.railgun19457.astrbotadaptor.server;
+package io.github.railgun19457.astrbotadapter.server;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 
 public class WebSocketServer {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     private final String host;
     private final int port;
     private final String token;
     private AstrbotWebSocketServer server;
     
-    public WebSocketServer(AstrbotAdaptor plugin, String host, int port, String token) {
+    public WebSocketServer(AstrbotAdapter plugin, String host, int port, String token) {
         this.plugin = plugin;
         this.host = host;
         this.port = port;

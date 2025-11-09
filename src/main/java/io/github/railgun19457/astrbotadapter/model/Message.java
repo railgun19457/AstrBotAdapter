@@ -1,4 +1,4 @@
-package io.github.railgun19457.astrbotadaptor.model;
+package io.github.railgun19457.astrbotadapter.model;
 
 public class Message {
     private String type;

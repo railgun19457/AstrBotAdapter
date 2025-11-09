@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AstrBot Minecraft Adaptor Python 客户端示例
-演示如何通过 WebSocket 连接到 Minecraft 服务器插件
+AstrBot Minecraft Adapter Python 客户端示�?
+演示如何通过 WebSocket 连接�?Minecraft 服务器插�?
 """
 
 import asyncio
@@ -18,7 +18,7 @@ logger = logging.getLogger("AstrBot-Client")
 
 
 class MinecraftClient:
-    """Minecraft 服务器 WebSocket 客户端"""
+    """Minecraft 服务�?WebSocket 客户�?""
     
     def __init__(self, host: str, port: int, token: str):
         self.host = host
@@ -28,13 +28,13 @@ class MinecraftClient:
         self.running = False
         
     async def connect(self):
-        """连接到 Minecraft 服务器"""
+        """连接�?Minecraft 服务�?""
         uri = f"ws://{self.host}:{self.port}"
-        logger.info(f"正在连接到 {uri}...")
+        logger.info(f"正在连接�?{uri}...")
         
         try:
             self.ws = await websockets.connect(uri)
-            logger.info("连接成功！")
+            logger.info("连接成功�?)
             self.running = True
             
             # 启动消息处理
@@ -49,7 +49,7 @@ class MinecraftClient:
             async for message in self.ws:
                 await self.on_message(message)
         except websockets.exceptions.ConnectionClosed:
-            logger.warning("连接已关闭")
+            logger.warning("连接已关�?)
             self.running = False
         except Exception as e:
             logger.error(f"消息处理错误: {e}")
@@ -62,17 +62,17 @@ class MinecraftClient:
             msg_type = data.get("type", "")
             
             if msg_type == "auth_required":
-                # 收到认证请求，发送 token
-                logger.info("收到认证请求，正在发送 token...")
+                # 收到认证请求，发�?token
+                logger.info("收到认证请求，正在发�?token...")
                 await self.authenticate()
                 
             elif msg_type == "auth_success":
-                logger.info("✅ 认证成功！")
-                # 认证成功后，可以开始发送消息
+                logger.info("�?认证成功�?)
+                # 认证成功后，可以开始发送消�?
                 await self.on_authenticated()
                 
             elif msg_type == "auth_failed":
-                logger.error("❌ 认证失败！")
+                logger.error("�?认证失败�?)
                 await self.ws.close()
                 
             elif msg_type == "chat":
@@ -84,16 +84,16 @@ class MinecraftClient:
             elif msg_type == "player_join":
                 # 玩家加入
                 player = data.get("player", "Unknown")
-                logger.info(f"➕ {player} 加入了游戏")
+                logger.info(f"�?{player} 加入了游�?)
                 
             elif msg_type == "player_leave":
                 # 玩家离开
                 player = data.get("player", "Unknown")
-                logger.info(f"➖ {player} 离开了游戏")
+                logger.info(f"�?{player} 离开了游�?)
                 
             elif msg_type == "status_response":
-                # 服务器状态响应
-                logger.info("📊 服务器状态:")
+                # 服务器状态响�?
+                logger.info("📊 服务器状�?")
                 logger.info(f"  在线玩家: {data.get('online_players')}/{data.get('max_players')}")
                 if 'tps' in data:
                     logger.info(f"  TPS: {data['tps']}")
@@ -112,7 +112,7 @@ class MinecraftClient:
                 
             elif msg_type == "error":
                 error_msg = data.get("message", "Unknown error")
-                logger.error(f"❌ 错误: {error_msg}")
+                logger.error(f"�?错误: {error_msg}")
                 
             else:
                 logger.warning(f"未知消息类型: {msg_type}")
@@ -120,10 +120,10 @@ class MinecraftClient:
         except json.JSONDecodeError:
             logger.error(f"无法解析消息: {message}")
         except Exception as e:
-            logger.error(f"处理消息时出错: {e}")
+            logger.error(f"处理消息时出�? {e}")
             
     async def authenticate(self):
-        """发送认证信息"""
+        """发送认证信�?""
         auth_msg = {
             "type": "auth",
             "token": self.token
@@ -132,19 +132,19 @@ class MinecraftClient:
         
     async def on_authenticated(self):
         """认证成功后的回调"""
-        # 请求服务器状态
+        # 请求服务器状�?
         await self.request_status()
         
     async def send(self, data: dict):
-        """发送 JSON 消息"""
+        """发�?JSON 消息"""
         if self.ws and not self.ws.closed:
             await self.ws.send(json.dumps(data))
         else:
-            logger.warning("WebSocket 未连接")
+            logger.warning("WebSocket 未连�?)
             
     async def send_chat(self, message: str, sender: str = None):
         """发送聊天消息到 Minecraft"""
-        logger.info(f"发送消息: {message}" + (f" (来自 {sender})" if sender else ""))
+        logger.info(f"发送消�? {message}" + (f" (来自 {sender})" if sender else ""))
         payload = {
             "type": "chat",
             "message": message
@@ -162,13 +162,13 @@ class MinecraftClient:
         })
         
     async def request_status(self):
-        """请求服务器状态"""
+        """请求服务器状�?""
         await self.send({
             "type": "status_request"
         })
         
     async def ping(self):
-        """发送 ping"""
+        """发�?ping"""
         await self.send({
             "type": "ping"
         })
@@ -178,11 +178,11 @@ class MinecraftClient:
         self.running = False
         if self.ws:
             await self.ws.close()
-            logger.info("连接已关闭")
+            logger.info("连接已关�?)
 
 
 async def main():
-    """主函数"""
+    """主函�?""
     # 配置连接信息
     HOST = "localhost"  # 服务器地址
     PORT = 8765         # WebSocket 端口
@@ -196,7 +196,7 @@ async def main():
     # 等待认证完成
     await asyncio.sleep(2)
     
-    # 示例：发送一些测试消息
+    # 示例：发送一些测试消�?
     if client.running:
         # 发送聊天消息（不带发送者）
         await client.send_chat("Hello from AstrBot!")
@@ -210,18 +210,18 @@ async def main():
         await client.send_command("list")
         await asyncio.sleep(1)
         
-        # 请求状态
+        # 请求状�?
         await client.request_status()
         await asyncio.sleep(1)
         
-        # 发送 ping
+        # 发�?ping
         await client.ping()
         
     # 保持连接
     try:
         await connect_task
     except KeyboardInterrupt:
-        logger.info("收到中断信号，正在关闭...")
+        logger.info("收到中断信号，正在关�?..")
         await client.close()
 
 
@@ -229,4 +229,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n程序已退出")
+        print("\n程序已退�?)

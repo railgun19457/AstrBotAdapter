@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.listener;
+package io.github.railgun19457.astrbotadapter.listener;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.event.EventHandler;
@@ -11,9 +11,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 @SuppressWarnings("deprecation") // AsyncPlayerChatEvent is used for Spigot compatibility
 public class ChatListener implements Listener {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     
-    public ChatListener(AstrbotAdaptor plugin) {
+    public ChatListener(AstrbotAdapter plugin) {
         this.plugin = plugin;
     }
     

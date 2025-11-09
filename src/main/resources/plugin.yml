@@ -1,11 +1,11 @@
-name: AstrbotAdaptor
+name: AstrbotAdapter
 version: '${project.version}'
-main: io.github.railgun19457.astrbotadaptor.AstrbotAdaptor
+main: io.github.railgun19457.astrbotadapter.AstrbotAdapter
 api-version: '1.20'
 api: '1.20'
 description: Minecraft server plugin for AstrBot integration
 author: railgun19457
-website: https://github.com/railgun19457/AstrBotAdaptor
+website: https://github.com/railgun19457/AstrBotAdapter
 
 commands:
   astrbot:

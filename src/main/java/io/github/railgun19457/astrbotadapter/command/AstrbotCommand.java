@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.command;
+package io.github.railgun19457.astrbotadapter.command;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +9,9 @@ import org.bukkit.command.CommandSender;
 @SuppressWarnings("deprecation") // ChatColor is used for Spigot compatibility
 public class AstrbotCommand implements CommandExecutor {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     
-    public AstrbotCommand(AstrbotAdaptor plugin) {
+    public AstrbotCommand(AstrbotAdapter plugin) {
         this.plugin = plugin;
     }
     

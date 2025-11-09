@@ -1,5 +1,5 @@
 """
-使用 requests 库的 REST API 客户端示例
+使用 requests 库的 REST API 客户端示�?
 """
 
 import requests
@@ -7,7 +7,7 @@ import json
 
 
 class MinecraftRestClient:
-    """Minecraft REST API 客户端"""
+    """Minecraft REST API 客户�?""
     
     def __init__(self, host: str, port: int, token: str):
         self.base_url = f"http://{host}:{port}/api"
@@ -17,7 +17,7 @@ class MinecraftRestClient:
         }
         
     def get_status(self):
-        """获取服务器状态"""
+        """获取服务器状�?""
         response = requests.get(f"{self.base_url}/status", headers=self.headers)
         response.raise_for_status()
         return response.json()
@@ -40,7 +40,7 @@ class MinecraftRestClient:
         return response.json()
         
     def send_message(self, message: str, sender: str = None):
-        """发送消息"""
+        """发送消�?""
         data = {"message": message}
         if sender:
             data["sender"] = sender
@@ -62,8 +62,8 @@ def main():
     client = MinecraftRestClient(HOST, PORT, TOKEN)
     
     try:
-        # 获取服务器状态
-        print("获取服务器状态...")
+        # 获取服务器状�?
+        print("获取服务器状�?..")
         status = client.get_status()
         print(json.dumps(status, indent=2, ensure_ascii=False))
         print()
@@ -74,8 +74,8 @@ def main():
         print(json.dumps(players, indent=2, ensure_ascii=False))
         print()
         
-        # 发送消息
-        print("发送消息...")
+        # 发送消�?
+        print("发送消�?..")
         result = client.send_message("Hello from REST API!")
         print(result)
         print()

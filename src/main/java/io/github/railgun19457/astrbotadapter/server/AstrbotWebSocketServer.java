@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.server;
+package io.github.railgun19457.astrbotadapter.server;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.java_websocket.WebSocket;
@@ -15,13 +15,13 @@ import java.util.logging.Level;
 
 public class AstrbotWebSocketServer extends WebSocketServer {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     private final String token;
     private final Gson gson;
     private final Set<WebSocket> authenticatedClients;
     private volatile boolean running = false;
     
-    public AstrbotWebSocketServer(AstrbotAdaptor plugin, String host, int port, String token) {
+    public AstrbotWebSocketServer(AstrbotAdapter plugin, String host, int port, String token) {
         super(new InetSocketAddress(host, port));
         this.plugin = plugin;
         this.token = token;

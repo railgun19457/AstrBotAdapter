@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.manager;
+package io.github.railgun19457.astrbotadapter.manager;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -9,11 +9,11 @@ import org.bukkit.ChatColor;
 @SuppressWarnings("deprecation") // ChatColor and legacy methods are used for Spigot compatibility
 public class MessageManager {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     private final String incomingFormat;
     private final String incomingFormatWithSender;
     
-    public MessageManager(AstrbotAdaptor plugin) {
+    public MessageManager(AstrbotAdapter plugin) {
         this.plugin = plugin;
         this.incomingFormat = plugin.getConfig().getString("message.incoming-format", "§7[§bAstrBot§7] §f{message}");
         this.incomingFormatWithSender = plugin.getConfig().getString("message.incoming-format-with-sender", "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}");

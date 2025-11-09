@@ -1,21 +1,21 @@
-package io.github.railgun19457.astrbotadaptor;
+package io.github.railgun19457.astrbotadapter;
 
-import io.github.railgun19457.astrbotadaptor.command.AstrbotCommand;
-import io.github.railgun19457.astrbotadaptor.listener.ChatListener;
-import io.github.railgun19457.astrbotadaptor.listener.PlayerListener;
-import io.github.railgun19457.astrbotadaptor.server.RestApiServer;
-import io.github.railgun19457.astrbotadaptor.server.WebSocketServer;
-import io.github.railgun19457.astrbotadaptor.manager.MessageManager;
-import io.github.railgun19457.astrbotadaptor.manager.StatusManager;
+import io.github.railgun19457.astrbotadapter.command.AstrbotCommand;
+import io.github.railgun19457.astrbotadapter.listener.ChatListener;
+import io.github.railgun19457.astrbotadapter.listener.PlayerListener;
+import io.github.railgun19457.astrbotadapter.server.RestApiServer;
+import io.github.railgun19457.astrbotadapter.server.WebSocketServer;
+import io.github.railgun19457.astrbotadapter.manager.MessageManager;
+import io.github.railgun19457.astrbotadapter.manager.StatusManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
 
-public class AstrbotAdaptor extends JavaPlugin {
+public class AstrbotAdapter extends JavaPlugin {
     
-    private static AstrbotAdaptor instance;
+    private static AstrbotAdapter instance;
     private WebSocketServer webSocketServer;
     private RestApiServer restApiServer;
     private MessageManager messageManager;
@@ -30,7 +30,7 @@ public class AstrbotAdaptor extends JavaPlugin {
         generateTokensIfNeeded();
         
         getLogger().info("========================================");
-        getLogger().info("  AstrBot Adaptor is starting...");
+        getLogger().info("  AstrBot Adapter is starting...");
         getLogger().info("========================================");
         
         // Initialize managers
@@ -47,13 +47,15 @@ public class AstrbotAdaptor extends JavaPlugin {
         startServers();
         
         getLogger().info("========================================");
-        getLogger().info("  AstrBot Adaptor enabled successfully!");
+        getLogger().info("  AstrBot Adapter enabled successfully!");
+        getLogger().info("  WebSocket Server: " + getConfig().getString("websocket.host") + ":" + getConfig().getInt("websocket.port"));
+        getLogger().info("  REST API Server: http://" + getConfig().getString("rest-api.host") + ":" + getConfig().getInt("rest-api.port"));
         getLogger().info("========================================");
     }
     
     @Override
     public void onDisable() {
-        getLogger().info("Stopping AstrBot Adaptor...");
+        getLogger().info("Stopping AstrBot Adapter...");
         
         // Stop servers
         stopServers();
@@ -148,10 +150,10 @@ public class AstrbotAdaptor extends JavaPlugin {
         // Restart servers
         startServers();
         
-        getLogger().info("AstrBot Adaptor reloaded successfully!");
+        getLogger().info("AstrBot Adapter reloaded successfully!");
     }
     
-    public static AstrbotAdaptor getInstance() {
+    public static AstrbotAdapter getInstance() {
         return instance;
     }
     

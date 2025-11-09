@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.manager;
+package io.github.railgun19457.astrbotadapter.manager;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -17,14 +17,14 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("deprecation") // Some deprecated methods are used for compatibility
 public class StatusManager {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     private final ScheduledExecutorService scheduler;
     private final boolean enableTps;
     private final boolean enableMemory;
     
     private double lastTps = 20.0;
     
-    public StatusManager(AstrbotAdaptor plugin) {
+    public StatusManager(AstrbotAdapter plugin) {
         this.plugin = plugin;
         this.enableTps = plugin.getConfig().getBoolean("status.enable-tps", true);
         this.enableMemory = plugin.getConfig().getBoolean("status.enable-memory", true);

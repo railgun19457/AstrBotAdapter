@@ -1,6 +1,6 @@
-package io.github.railgun19457.astrbotadaptor.server;
+package io.github.railgun19457.astrbotadapter.server;
 
-import io.github.railgun19457.astrbotadaptor.AstrbotAdaptor;
+import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
@@ -16,7 +16,7 @@ import java.util.logging.Level;
 
 public class RestApiServer {
     
-    private final AstrbotAdaptor plugin;
+    private final AstrbotAdapter plugin;
     private final String host;
     private final int port;
     private final String token;
@@ -24,7 +24,7 @@ public class RestApiServer {
     private HttpServer server;
     private volatile boolean running = false;
     
-    public RestApiServer(AstrbotAdaptor plugin, String host, int port, String token) {
+    public RestApiServer(AstrbotAdapter plugin, String host, int port, String token) {
         this.plugin = plugin;
         this.host = host;
         this.port = port;

@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.railgun19457</groupId>
-    <artifactId>AstrbotAdaptor</artifactId>
+    <artifactId>AstrbotAdapter</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>AstrbotAdaptor</name>
+    <name>AstrbotAdapter</name>
     <description>Minecraft server plugin for AstrBot integration</description>
-    <url>https://github.com/railgun19457/AstrBotAdaptor</url>
+    <url>https://github.com/railgun19457/AstrBotAdapter</url>
 
     <properties>
         <java.version>17</java.version>
@@ -92,19 +92,19 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.java_websocket</pattern>
-                                    <shadedPattern>com.astrbot.adaptor.libs.websocket</shadedPattern>
+                                    <shadedPattern>io.github.railgun19457.astrbotadapter.libs.websocket</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.gson</pattern>
-                                    <shadedPattern>com.astrbot.adaptor.libs.gson</shadedPattern>
+                                    <shadedPattern>io.github.railgun19457.astrbotadapter.libs.gson</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>okhttp3</pattern>
-                                    <shadedPattern>com.astrbot.adaptor.libs.okhttp3</shadedPattern>
+                                    <shadedPattern>io.github.railgun19457.astrbotadapter.libs.okhttp3</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>okio</pattern>
-                                    <shadedPattern>com.astrbot.adaptor.libs.okio</shadedPattern>
+                                    <shadedPattern>io.github.railgun19457.astrbotadapter.libs.okio</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
