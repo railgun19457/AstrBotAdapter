@@ -1,0 +1,46 @@
+# AstrBot Adaptor Configuration
+
+# WebSocket Server Settings
+websocket:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8765
+  # Token for authentication (will be auto-generated on first start)
+  token: "your_secure_token_here"
+
+# REST API Settings
+rest-api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8766
+  # Token for authentication (will be auto-generated on first start)
+  token: "your_secure_token_here"
+
+# Message Settings
+message:
+  # Format for messages sent to AstrBot
+  # Placeholders: {player}, {message}
+  chat-format: "[{player}] {message}"
+  # Format for messages sent to Minecraft from AstrBot (without sender info)
+  # Placeholders: {message}
+  incoming-format: "§7[§bAstrBot§7] §f{message}"
+  # Format for messages sent to Minecraft from AstrBot (with sender info)
+  # Placeholders: {sender}, {message}
+  incoming-format-with-sender: "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}"
+  # Enable player join/leave notifications
+  notify-join: true
+  notify-leave: true
+  join-format: "§7{player} joined the game"
+  leave-format: "§7{player} left the game"
+
+# Server Status Settings
+status:
+  # Update interval in seconds
+  update-interval: 30
+  # Enable TPS monitoring
+  enable-tps: true
+  # Enable memory monitoring
+  enable-memory: true
+
+# Debug mode
+debug: false
