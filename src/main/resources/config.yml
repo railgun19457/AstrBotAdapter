@@ -18,6 +18,10 @@ rest-api:
 
 # Message Settings
 message:
+  # Message forward prefix - only messages starting with this prefix will be forwarded
+  # Leave empty ("") to forward all messages
+  # Example: "!" means only messages like "!hello" will be forwarded
+  forward-prefix: ""
   # Format for messages sent to AstrBot
   # Placeholders: {player}, {message}
   chat-format: "[{player}] {message}"
