@@ -1,4 +1,4 @@
-# AstrBot Adapter API 文档
+﻿# AstrBot Adapter API 文档
 
 ## WebSocket API
 
@@ -6,11 +6,11 @@
 ```
 ws://{服务器IP}:{端口}
 ```
-默认端口�?765
+默认端口：8765
 
 ### 认证流程
 
-1. 客户端连接到 WebSocket 服务�?
+1. 客户端连接到 WebSocket 服务器
 2. 服务器发送认证请求：
 ```json
 {
@@ -28,14 +28,14 @@ ws://{服务器IP}:{端口}
 ```
 
 4. 服务器返回认证结果：
-   - 成功�?
+   - 成功：
    ```json
    {
      "type": "auth_success",
      "message": "Authentication successful"
    }
    ```
-   - 失败�?
+   - 失败：
    ```json
    {
      "type": "auth_failed",
@@ -43,9 +43,9 @@ ws://{服务器IP}:{端口}
    }
    ```
 
-### 客户端发送消�?
+### 客户端发送消息
 
-#### 1. 发送聊天消�?
+#### 1. 发送聊天消息
 ```json
 {
   "type": "chat",
@@ -54,7 +54,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**示例（不带发送者）�?*
+**示例（不带发送者）：**
 ```json
 {
   "type": "chat",
@@ -62,7 +62,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**示例（带发送者）�?*
+**示例（带发送者）：**
 ```json
 {
   "type": "chat",
@@ -71,7 +71,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**响应�?*
+**响应：**
 ```json
 {
   "type": "chat_sent",
@@ -83,7 +83,7 @@ ws://{服务器IP}:{端口}
 - 不带发送者：`[AstrBot] Hello from AstrBot!`
 - 带发送者：`[AstrBot] <小明> 大家好！`
 
-#### 2. 执行服务器指�?
+#### 2. 执行服务器指令
 ```json
 {
   "type": "command",
@@ -91,7 +91,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**示例�?*
+**示例：**
 ```json
 {
   "type": "command",
@@ -99,7 +99,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**响应�?*
+**响应：**
 ```json
 {
   "type": "command_result",
@@ -108,14 +108,14 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-#### 3. 请求服务器状�?
+#### 3. 请求服务器状态
 ```json
 {
   "type": "status_request"
 }
 ```
 
-**响应�?* 参见"服务器推送消�? -> "服务器状�?
+**响应：** 参见"服务器推送消息" -> "服务器状态"
 
 #### 4. Ping
 ```json
@@ -124,7 +124,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-**响应�?*
+**响应：**
 ```json
 {
   "type": "pong",
@@ -132,7 +132,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-### 服务器推送消�?
+### 服务器推送消息
 
 #### 1. 玩家聊天消息
 ```json
@@ -144,7 +144,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-#### 2. 玩家加入服务�?
+#### 2. 玩家加入服务器
 ```json
 {
   "type": "player_join",
@@ -153,7 +153,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-#### 3. 玩家离开服务�?
+#### 3. 玩家离开服务器
 ```json
 {
   "type": "player_leave",
@@ -162,7 +162,7 @@ ws://{服务器IP}:{端口}
 }
 ```
 
-#### 4. 服务器状�?
+#### 4. 服务器状态
 ```json
 {
   "type": "status_response",
@@ -207,7 +207,7 @@ ws://{服务器IP}:{端口}
 
 ### 认证
 
-所�?REST API 请求都需要在 HTTP Header 中包含认�?Token�?
+所有 REST API 请求都需要在 HTTP Header 中包含认证 Token：
 
 ```http
 Authorization: Bearer your_secure_token_here
@@ -223,16 +223,16 @@ Authorization: your_secure_token_here
 
 #### 1. GET /api/status
 
-获取服务器完整状态信息�?
+获取服务器完整状态信息。
 
-**请求示例�?*
+**请求示例：**
 ```http
 GET /api/status HTTP/1.1
 Host: localhost:8766
 Authorization: Bearer your_secure_token_here
 ```
 
-**响应示例�?*
+**响应示例：**
 ```json
 {
   "online": true,
@@ -264,16 +264,16 @@ Authorization: Bearer your_secure_token_here
 
 #### 2. GET /api/players
 
-获取在线玩家的详细信息�?
+获取在线玩家的详细信息。
 
-**请求示例�?*
+**请求示例：**
 ```http
 GET /api/players HTTP/1.1
 Host: localhost:8766
 Authorization: Bearer your_secure_token_here
 ```
 
-**响应示例�?*
+**响应示例：**
 ```json
 {
   "online": 5,
@@ -302,9 +302,9 @@ Authorization: Bearer your_secure_token_here
 
 #### 3. POST /api/command
 
-执行服务器控制台指令�?
+执行服务器控制台指令。
 
-**请求示例�?*
+**请求示例：**
 ```http
 POST /api/command HTTP/1.1
 Host: localhost:8766
@@ -316,7 +316,7 @@ Content-Type: application/json
 }
 ```
 
-**响应示例�?*
+**响应示例：**
 ```json
 {
   "success": true,
@@ -324,13 +324,13 @@ Content-Type: application/json
 }
 ```
 
-**注意�?* 指令不需要包含斜�?`/`�?
+**注意：** 指令不需要包含斜杠 `/`。
 
 #### 4. POST /api/message
 
-向服务器发送一条消息，将在游戏内广播�?
+向服务器发送一条消息，将在游戏内广播。
 
-**请求示例（不带发送者）�?*
+**请求示例（不带发送者）：**
 ```http
 POST /api/message HTTP/1.1
 Host: localhost:8766
@@ -342,7 +342,7 @@ Content-Type: application/json
 }
 ```
 
-**请求示例（带发送者）�?*
+**请求示例（带发送者）：**
 ```http
 POST /api/message HTTP/1.1
 Host: localhost:8766
@@ -355,7 +355,7 @@ Content-Type: application/json
 }
 ```
 
-**响应示例�?*
+**响应示例：**
 ```json
 {
   "success": true,
@@ -369,7 +369,7 @@ Content-Type: application/json
 
 ### 错误响应
 
-所有错误响应都遵循以下格式�?
+所有错误响应都遵循以下格式：
 
 ```json
 {
@@ -378,11 +378,11 @@ Content-Type: application/json
 }
 ```
 
-**常见错误代码�?*
+**常见错误代码：**
 - `400` - 请求参数错误
 - `401` - 未认证或认证失败
-- `405` - 请求方法不允�?
-- `500` - 服务器内部错�?
+- `405` - 请求方法不允许
+- `500` - 服务器内部错误
 
 ---
 
@@ -395,29 +395,29 @@ Content-Type: application/json
 - `tps[2]` - 15分钟平均 TPS
 
 ### 内存使用
-- `used_mb` - 已使用内存（MB�?
-- `max_mb` - 最大可用内存（MB�?
-- `committed_mb` - 已分配内存（MB�?
-- `free_mb` - 空闲内存（MB�?
-- `usage_percent` - 内存使用百分�?
+- `used_mb` - 已使用内存（MB）
+- `max_mb` - 最大可用内存（MB）
+- `committed_mb` - 已分配内存（MB）
+- `free_mb` - 空闲内存（MB）
+- `usage_percent` - 内存使用百分比
 
 ### 游戏模式
 - `SURVIVAL` - 生存模式
-- `CREATIVE` - 创造模�?
+- `CREATIVE` - 创造模式
 - `ADVENTURE` - 冒险模式
-- `SPECTATOR` - 旁观者模�?
+- `SPECTATOR` - 旁观者模式
 
 ### 难度
 - `PEACEFUL` - 和平
-- `EASY` - 简�?
-- `NORMAL` - 普�?
+- `EASY` - 简单
+- `NORMAL` - 普通
 - `HARD` - 困难
 
 ---
 
 ## 使用示例
 
-### Python WebSocket 客户�?
+### Python WebSocket 客户端
 ```python
 import asyncio
 import websockets
@@ -430,7 +430,7 @@ async def connect():
         msg = await ws.recv()
         print(f"收到: {msg}")
         
-        # 发送认�?
+        # 发送认证
         await ws.send(json.dumps({
             "type": "auth",
             "token": "your_token"
@@ -456,11 +456,11 @@ async def connect():
 asyncio.run(connect())
 ```
 
-### Python REST API 客户�?
+### Python REST API 客户端
 ```python
 import requests
 
-# 获取服务器状�?
+# 获取服务器状态
 response = requests.get(
     "http://localhost:8766/api/status",
     headers={"Authorization": "Bearer your_token"}
@@ -486,7 +486,7 @@ print(response.json())
 
 ### cURL 示例
 ```bash
-# 获取服务器状�?
+# 获取服务器状态
 curl -H "Authorization: Bearer your_token" \
      http://localhost:8766/api/status
 
@@ -494,21 +494,21 @@ curl -H "Authorization: Bearer your_token" \
 curl -X POST \
      -H "Authorization: Bearer your_token" \
      -H "Content-Type: application/json" \
-     -d '{"command":"list"}' \
+     -d '"'"'{"command":"list"}'"'"' \
      http://localhost:8766/api/command
 
 # 发送消息（不带发送者）
 curl -X POST \
      -H "Authorization: Bearer your_token" \
      -H "Content-Type: application/json" \
-     -d '{"message":"Hello from cURL!"}' \
+     -d '"'"'{"message":"Hello from cURL!"}'"'"' \
      http://localhost:8766/api/message
 
 # 发送消息（带发送者）
 curl -X POST \
      -H "Authorization: Bearer your_token" \
      -H "Content-Type: application/json" \
-     -d '{"message":"大家好！","sender":"外部用户"}' \
+     -d '"'"'{"message":"大家好！","sender":"外部用户"}'"'"' \
      http://localhost:8766/api/message
 ```
 
@@ -516,8 +516,8 @@ curl -X POST \
 
 ## 安全建议
 
-1. **使用�?Token** - 使用至少 32 个字符的随机字符串作为认�?Token
+1. **使用强 Token** - 使用至少 32 个字符的随机字符串作为认证 Token
 2. **HTTPS/WSS** - 在生产环境中，建议在前面加上反向代理（如 Nginx）并启用 SSL/TLS
-3. **防火�?* - 限制只有授信�?IP 地址可以访问 API 端口
-4. **定期更换 Token** - 定期更换认证 Token 以提高安全�?
-5. **监控日志** - 定期检查日志文件，留意可疑的认证失败记�?
+3. **防火墙** - 限制只有授信的 IP 地址可以访问 API 端口
+4. **定期更换 Token** - 定期更换认证 Token 以提高安全性
+5. **监控日志** - 定期检查日志文件，留意可疑的认证失败记录
