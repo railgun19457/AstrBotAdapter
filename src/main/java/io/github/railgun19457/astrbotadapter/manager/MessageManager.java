@@ -11,12 +11,13 @@ public class MessageManager {
     
     private final AstrbotAdapter plugin;
     private final String incomingFormat;
-    private final String incomingFormatWithSender;
     
     public MessageManager(AstrbotAdapter plugin) {
         this.plugin = plugin;
-        this.incomingFormat = plugin.getConfig().getString("message.incoming-format", "§7[§bAstrBot§7] §f{message}");
-        this.incomingFormatWithSender = plugin.getConfig().getString("message.incoming-format-with-sender", "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}");
+        this.incomingFormat = plugin.getConfig().getString(
+            "message.incoming-format",
+            "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}"
+        );
     }
     
     /**
@@ -33,14 +34,9 @@ public class MessageManager {
      */
     public void sendToMinecraft(String message, String sender) {
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            String formatted;
-            if (sender != null && !sender.isEmpty()) {
-                formatted = incomingFormatWithSender
-                    .replace("{sender}", sender)
-                    .replace("{message}", message);
-            } else {
-                formatted = incomingFormat.replace("{message}", message);
-            }
+            String formatted = incomingFormat
+                .replace("{sender}", sender == null ? "" : sender)
+                .replace("{message}", message);
             formatted = ChatColor.translateAlternateColorCodes('&', formatted);
             
             // Try to use Paper's Adventure API if available
@@ -55,6 +51,8 @@ public class MessageManager {
             plugin.debug("Sent message to Minecraft: " + (sender != null ? "[" + sender + "] " : "") + message);
         });
     }
+
+    // Simplified: single template with {sender} and {message} only.
     
     /**
      * Send a chat message from Minecraft to external service

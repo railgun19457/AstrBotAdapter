@@ -3,6 +3,7 @@ package io.github.railgun19457.astrbotadapter.server;
 import io.github.railgun19457.astrbotadapter.AstrbotAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -77,22 +78,54 @@ public class RestApiServer {
         return token.isEmpty() || token.equals(receivedToken);
     }
     
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+    /**
+     * Build a base response envelope with common metadata.
+     */
+    private JsonObject baseResponse(HttpExchange exchange, int statusCode, boolean success) {
+        JsonObject base = new JsonObject();
+        base.addProperty("success", success);
+        base.addProperty("status", statusCode);
+        base.addProperty("timestamp", System.currentTimeMillis());
+        base.addProperty("path", exchange.getRequestURI().getPath());
+        return base;
+    }
+
+    /**
+     * Low-level send of already serialized JSON.
+     */
+    private void writeJson(HttpExchange exchange, int statusCode, String json) throws IOException {
+        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.sendResponseHeaders(statusCode, bytes.length);
-        
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
         }
     }
-    
+
+    /**
+     * High-level send that wraps data object in standard envelope.
+     */
+    private void sendJson(HttpExchange exchange, int statusCode, JsonObject data) {
+        try {
+            JsonObject base = baseResponse(exchange, statusCode, statusCode < 400);
+            if (data != null) {
+                base.add("data", data);
+            }
+            writeJson(exchange, statusCode, gson.toJson(base));
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "Failed to send JSON response", e);
+        }
+    }
+
+    private void sendOk(HttpExchange exchange, JsonObject data) {
+        sendJson(exchange, 200, data);
+    }
+
     private void sendError(HttpExchange exchange, int statusCode, String message) {
         try {
-            JsonObject error = new JsonObject();
-            error.addProperty("error", message);
-            error.addProperty("status", statusCode);
-            sendResponse(exchange, statusCode, gson.toJson(error));
+            JsonObject base = baseResponse(exchange, statusCode, false);
+            base.addProperty("error", message);
+            writeJson(exchange, statusCode, gson.toJson(base));
         } catch (IOException e) {
             plugin.getLogger().log(Level.WARNING, "Error sending error response", e);
         }
@@ -114,7 +147,7 @@ public class RestApiServer {
             
             try {
                 JsonObject status = plugin.getStatusManager().getStatus();
-                sendResponse(exchange, 200, gson.toJson(status));
+                sendOk(exchange, status);
             } catch (Exception e) {
                 plugin.getLogger().log(Level.WARNING, "Error getting status", e);
                 sendError(exchange, 500, "Internal server error");
@@ -138,7 +171,7 @@ public class RestApiServer {
             
             try {
                 JsonObject players = plugin.getStatusManager().getPlayersInfo();
-                sendResponse(exchange, 200, gson.toJson(players));
+                sendOk(exchange, players);
             } catch (Exception e) {
                 plugin.getLogger().log(Level.WARNING, "Error getting players info", e);
                 sendError(exchange, 500, "Internal server error");
@@ -163,7 +196,13 @@ public class RestApiServer {
             try {
                 // Read request body
                 String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                JsonObject json = gson.fromJson(body, JsonObject.class);
+                JsonObject json;
+                try {
+                    json = gson.fromJson(body, JsonObject.class);
+                } catch (JsonSyntaxException ex) {
+                    sendError(exchange, 400, "Malformed JSON");
+                    return;
+                }
                 
                 if (!json.has("command")) {
                     sendError(exchange, 400, "Command is required");
@@ -180,11 +219,10 @@ public class RestApiServer {
                             command
                         );
                         
-                        JsonObject response = new JsonObject();
-                        response.addProperty("success", success);
-                        response.addProperty("command", command);
-                        
-                        sendResponse(exchange, 200, gson.toJson(response));
+                        JsonObject data = new JsonObject();
+                        data.addProperty("command", command);
+                        data.addProperty("executed", success);
+                        sendOk(exchange, data);
                     } catch (Exception e) {
                         plugin.getLogger().log(Level.WARNING, "Error executing command", e);
                         sendError(exchange, 500, "Error executing command");
@@ -215,23 +253,28 @@ public class RestApiServer {
             try {
                 // Read request body
                 String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                JsonObject json = gson.fromJson(body, JsonObject.class);
-                
-                if (!json.has("message")) {
-                    sendError(exchange, 400, "Message is required");
+                JsonObject json;
+                try {
+                    json = gson.fromJson(body, JsonObject.class);
+                } catch (JsonSyntaxException ex) {
+                    sendError(exchange, 400, "Malformed JSON");
                     return;
                 }
                 
-                String message = json.get("message").getAsString();
+                // Make message optional; default to empty string when absent
+                String message = (json.has("message") && !json.get("message").isJsonNull())
+                    ? json.get("message").getAsString()
+                    : "";
                 String sender = json.has("sender") ? json.get("sender").getAsString() : null;
                 
                 plugin.getMessageManager().sendToMinecraft(message, sender);
                 
-                JsonObject response = new JsonObject();
-                response.addProperty("success", true);
-                response.addProperty("message", "Message sent");
-                
-                sendResponse(exchange, 200, gson.toJson(response));
+                JsonObject data = new JsonObject();
+                data.addProperty("message_length", message.length());
+                if (sender != null) {
+                    data.addProperty("sender", sender);
+                }
+                sendOk(exchange, data);
                 
             } catch (Exception e) {
                 plugin.getLogger().log(Level.WARNING, "Error processing message request", e);

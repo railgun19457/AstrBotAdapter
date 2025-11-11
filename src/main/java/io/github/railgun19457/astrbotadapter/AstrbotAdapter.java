@@ -56,7 +56,7 @@ public class AstrbotAdapter extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        getLogger().info("Stopping AstrBot Adapter...");
+    getLogger().info("Stopping AstrBot Adapter...");
         
         // Stop servers
         stopServers();
@@ -66,7 +66,7 @@ public class AstrbotAdapter extends JavaPlugin {
             statusManager.shutdown();
         }
         
-        getLogger().info("AstrBot Adaptor disabled.");
+    getLogger().info("AstrBot Adapter disabled.");
     }
     
     private void registerListeners() {
@@ -134,7 +134,7 @@ public class AstrbotAdapter extends JavaPlugin {
     }
     
     public void reload() {
-        getLogger().info("Reloading AstrBot Adaptor...");
+    getLogger().info("Reloading AstrBot Adapter...");
         
         // Stop servers
         stopServers();
@@ -163,7 +163,7 @@ public class AstrbotAdapter extends JavaPlugin {
         // Restart servers
         startServers();
         
-        getLogger().info("AstrBot Adapter reloaded successfully!");
+    getLogger().info("AstrBot Adapter reloaded successfully!");
     }
     
     public static AstrbotAdapter getInstance() {

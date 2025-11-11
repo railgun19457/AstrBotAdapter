@@ -29,9 +29,9 @@ public class AstrbotCommand implements CommandExecutor {
         
         switch (args[0].toLowerCase()) {
             case "reload":
-                sender.sendMessage(ChatColor.YELLOW + "Reloading AstrBot Adaptor...");
+                sender.sendMessage(ChatColor.YELLOW + "Reloading AstrBot Adapter...");
                 plugin.reload();
-                sender.sendMessage(ChatColor.GREEN + "AstrBot Adaptor reloaded successfully!");
+                sender.sendMessage(ChatColor.GREEN + "AstrBot Adapter reloaded successfully!");
                 break;
                 
             case "status":

@@ -231,15 +231,21 @@ public class StatusManager {
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
         MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
         
-        long used = heapUsage.getUsed() / (1024 * 1024); // Convert to MB
-        long max = heapUsage.getMax() / (1024 * 1024); // Convert to MB
-        long committed = heapUsage.getCommitted() / (1024 * 1024); // Convert to MB
+    long used = heapUsage.getUsed() / (1024 * 1024); // Convert to MB
+    long max = heapUsage.getMax() / (1024 * 1024); // Convert to MB (can be -1)
+    long committed = heapUsage.getCommitted() / (1024 * 1024); // Convert to MB
         
         memory.addProperty("used_mb", used);
         memory.addProperty("max_mb", max);
         memory.addProperty("committed_mb", committed);
-        memory.addProperty("free_mb", max - used);
-        memory.addProperty("usage_percent", (double) used / max * 100);
+        long freeMb = (max > 0) ? Math.max(0, max - used) : Math.max(0, committed - used);
+        memory.addProperty("free_mb", freeMb);
+        double percent = (max > 0) ? (double) used / max * 100.0 : -1.0; // -1 denotes unavailable
+        if (percent >= 0) {
+            // clamp to [0,100]
+            percent = Math.max(0.0, Math.min(100.0, percent));
+        }
+        memory.addProperty("usage_percent", percent);
         
         return memory;
     }

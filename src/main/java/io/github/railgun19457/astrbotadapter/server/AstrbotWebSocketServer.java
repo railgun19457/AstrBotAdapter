@@ -11,6 +11,8 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public class AstrbotWebSocketServer extends WebSocketServer {
@@ -20,13 +22,22 @@ public class AstrbotWebSocketServer extends WebSocketServer {
     private final Gson gson;
     private final Set<WebSocket> authenticatedClients;
     private volatile boolean running = false;
+    // Rate limiting data
+    private final boolean rateLimitEnabled;
+    private final int rateLimitCount;
+    private final long rateLimitWindowMs;
+    private final Map<WebSocket, RateWindow> rateWindows;
     
     public AstrbotWebSocketServer(AstrbotAdapter plugin, String host, int port, String token) {
         super(new InetSocketAddress(host, port));
         this.plugin = plugin;
         this.token = token;
-        this.gson = new Gson();
-        this.authenticatedClients = Collections.synchronizedSet(new HashSet<>());
+    this.gson = new Gson();
+    this.authenticatedClients = Collections.synchronizedSet(new HashSet<>());
+    this.rateLimitEnabled = plugin.getConfig().getBoolean("websocket.rate-limit.enabled", true);
+    this.rateLimitCount = plugin.getConfig().getInt("websocket.rate-limit.count", 5);
+    this.rateLimitWindowMs = plugin.getConfig().getLong("websocket.rate-limit.window-ms", 3000L);
+    this.rateWindows = new ConcurrentHashMap<>();
         
         // Set connection timeout
         setConnectionLostTimeout(30);
@@ -134,20 +145,24 @@ public class AstrbotWebSocketServer extends WebSocketServer {
     }
     
     private void handleChatMessage(WebSocket conn, JsonObject json) {
-        if (!json.has("message")) {
-            sendError(conn, "Message is required");
+        // Make message optional; default to empty string if absent
+        String message = json.has("message") && !json.get("message").isJsonNull()
+            ? json.get("message").getAsString()
+            : "";
+        String sender = json.has("sender") ? json.get("sender").getAsString() : null;
+        // Rate limit
+        if (rateLimitEnabled && isRateLimited(conn)) {
+            sendRateLimited(conn, getRetryAfterMs(conn));
             return;
         }
         
-        String message = json.get("message").getAsString();
-        String sender = json.has("sender") ? json.get("sender").getAsString() : null;
-        
         plugin.getMessageManager().sendToMinecraft(message, sender);
         
-        // Send confirmation
+        // Send confirmation (include length hint)
         JsonObject response = new JsonObject();
         response.addProperty("type", "chat_sent");
         response.addProperty("status", "success");
+        response.addProperty("message_length", message.length());
         conn.send(gson.toJson(response));
     }
     
@@ -199,16 +214,34 @@ public class AstrbotWebSocketServer extends WebSocketServer {
         response.addProperty("message", error);
         conn.send(gson.toJson(response));
     }
+    private void sendRateLimited(WebSocket conn, long retryAfterMs) {
+        JsonObject response = new JsonObject();
+        response.addProperty("type", "error");
+        response.addProperty("message", "rate_limited");
+        response.addProperty("retry_after_ms", Math.max(0, retryAfterMs));
+        conn.send(gson.toJson(response));
+    }
     
     public void broadcast(String message) {
         JsonObject json = gson.fromJson(message, JsonObject.class);
         String jsonString = gson.toJson(json);
         
         synchronized (authenticatedClients) {
+            Set<WebSocket> toRemove = new HashSet<>();
             for (WebSocket client : authenticatedClients) {
                 if (client.isOpen()) {
-                    client.send(jsonString);
+                    try {
+                        client.send(jsonString);
+                    } catch (Exception e) {
+                        toRemove.add(client);
+                        plugin.getLogger().log(Level.FINE, "Failed to send to client; scheduling removal", e);
+                    }
+                } else {
+                    toRemove.add(client);
                 }
+            }
+            if (!toRemove.isEmpty()) {
+                authenticatedClients.removeAll(toRemove);
             }
         }
     }
@@ -253,5 +286,29 @@ public class AstrbotWebSocketServer extends WebSocketServer {
     public void stop() throws InterruptedException {
         running = false;
         super.stop();
+    }
+    // Rate window class
+    private static class RateWindow { long windowStart; int count; }
+    private boolean isRateLimited(WebSocket conn) {
+        long now = System.currentTimeMillis();
+        RateWindow w = rateWindows.computeIfAbsent(conn, k -> new RateWindow());
+        synchronized (w) {
+            if (now - w.windowStart > rateLimitWindowMs) {
+                w.windowStart = now;
+                w.count = 0;
+            }
+            if (w.count < rateLimitCount) {
+                w.count++;
+                return false;
+            }
+            return true;
+        }
+    }
+    private long getRetryAfterMs(WebSocket conn) {
+        RateWindow w = rateWindows.get(conn);
+        if (w == null) return rateLimitWindowMs;
+        long now = System.currentTimeMillis();
+        long elapsed = now - w.windowStart;
+        return (elapsed >= rateLimitWindowMs) ? 0 : (rateLimitWindowMs - elapsed);
     }
 }

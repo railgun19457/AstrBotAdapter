@@ -7,6 +7,11 @@ websocket:
   port: 8765
   # Token for authentication (will be auto-generated on first start)
   token: "your_secure_token_here"
+  # Rate limit settings
+  rate-limit:
+    enabled: true
+    count: 5          # Max chat messages per window per client
+    window-ms: 3000   # Window length in milliseconds
 
 # REST API Settings
 rest-api:
@@ -25,12 +30,10 @@ message:
   # Format for messages sent to AstrBot
   # Placeholders: {player}, {message}
   chat-format: "[{player}] {message}"
-  # Format for messages sent to Minecraft from AstrBot (without sender info)
-  # Placeholders: {message}
-  incoming-format: "§7[§bAstrBot§7] §f{message}"
-  # Format for messages sent to Minecraft from AstrBot (with sender info)
+  # Format for messages sent to Minecraft from AstrBot
   # Placeholders: {sender}, {message}
-  incoming-format-with-sender: "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}"
+  # 注意：当 sender 或 message 缺省或为空时，会把对应占位符替换为 ""（空串）
+  incoming-format: "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}"
   # Enable player join/leave notifications
   notify-join: true
   notify-leave: true
