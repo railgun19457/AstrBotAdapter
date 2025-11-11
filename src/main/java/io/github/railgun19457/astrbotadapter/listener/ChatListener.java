@@ -43,6 +43,8 @@ public class ChatListener implements Listener {
             String player = event.getPlayer().getName();
             String message = PlainTextComponentSerializer.plainText().serialize(event.message());
             
+            plugin.debug("Paper AsyncChatEvent triggered for: " + player + " - " + message);
+            
             // Check if message should be forwarded
             if (shouldForward(message)) {
                 // Remove prefix if it exists
@@ -64,6 +66,8 @@ public class ChatListener implements Listener {
         
         String player = event.getPlayer().getName();
         String message = event.getMessage();
+        
+        plugin.debug("Spigot AsyncPlayerChatEvent triggered for: " + player + " - " + message);
         
         // Check if message should be forwarded
         if (shouldForward(message)) {

@@ -284,6 +284,19 @@ public class AstrbotWebSocketServer extends WebSocketServer {
         return authenticatedClients.size();
     }
     
+    public java.util.List<String> getConnectionDetails() {
+        java.util.List<String> details = new java.util.ArrayList<>();
+        synchronized (authenticatedClients) {
+            for (WebSocket client : authenticatedClients) {
+                if (client.isOpen()) {
+                    String address = client.getRemoteSocketAddress().toString();
+                    details.add(address);
+                }
+            }
+        }
+        return details;
+    }
+    
     public boolean isRunning() {
         return running;
     }

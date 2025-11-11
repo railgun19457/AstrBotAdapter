@@ -18,7 +18,7 @@ public class AstrbotCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("astrbot.admin")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(ChatColor.RED + "你没有权限使用此命令。");
             return true;
         }
         
@@ -29,9 +29,9 @@ public class AstrbotCommand implements CommandExecutor {
         
         switch (args[0].toLowerCase()) {
             case "reload":
-                sender.sendMessage(ChatColor.YELLOW + "Reloading AstrBot Adapter...");
+                sender.sendMessage(ChatColor.YELLOW + "正在重载 AstrBot 适配器...");
                 plugin.reload();
-                sender.sendMessage(ChatColor.GREEN + "AstrBot Adapter reloaded successfully!");
+                sender.sendMessage(ChatColor.GREEN + "AstrBot 适配器重载成功！");
                 break;
                 
             case "status":
@@ -43,7 +43,7 @@ public class AstrbotCommand implements CommandExecutor {
                 break;
                 
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown subcommand. Use /astrbot help for help.");
+                sender.sendMessage(ChatColor.RED + "未知的子命令。使用 /astrbot help 查看帮助。");
                 break;
         }
         
@@ -51,34 +51,48 @@ public class AstrbotCommand implements CommandExecutor {
     }
     
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "========== AstrBot Adaptor ==========");
-        sender.sendMessage(ChatColor.YELLOW + "/astrbot reload" + ChatColor.WHITE + " - Reload the plugin");
-        sender.sendMessage(ChatColor.YELLOW + "/astrbot status" + ChatColor.WHITE + " - Show server status");
-        sender.sendMessage(ChatColor.YELLOW + "/astrbot help" + ChatColor.WHITE + " - Show this help message");
-        sender.sendMessage(ChatColor.GOLD + "=====================================");
+        sender.sendMessage(ChatColor.GOLD + "========== AstrBot 适配器 ==========");
+        sender.sendMessage(ChatColor.YELLOW + "/astrbot reload" + ChatColor.WHITE + " - 重载插件");
+        sender.sendMessage(ChatColor.YELLOW + "/astrbot status" + ChatColor.WHITE + " - 显示服务器状态");
+        sender.sendMessage(ChatColor.YELLOW + "/astrbot help" + ChatColor.WHITE + " - 显示此帮助信息");
+        sender.sendMessage(ChatColor.GOLD + "=================================");
     }
     
     private void sendStatus(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "========== Server Status ==========");
+        sender.sendMessage(ChatColor.GOLD + "========== 服务器状态 ==========");
         
-        // WebSocket status
-        boolean wsEnabled = plugin.getConfig().getBoolean("websocket.enabled", true);
-        boolean wsRunning = plugin.getWebSocketServer() != null && plugin.getWebSocketServer().isRunning();
-        int wsPort = plugin.getConfig().getInt("websocket.port", 8765);
-        sender.sendMessage(ChatColor.YELLOW + "WebSocket: " + 
-            (wsEnabled ? (wsRunning ? ChatColor.GREEN + "Running on port " + wsPort : ChatColor.RED + "Error") : ChatColor.GRAY + "Disabled"));
+        sendServerStatus(sender, "WebSocket", "websocket", plugin.getWebSocketServer(), plugin.getWebSocketServer());
+        sendServerStatus(sender, "REST API", "rest-api", plugin.getRestApiServer(), plugin.getRestApiServer());
         
-        // REST API status
-        boolean apiEnabled = plugin.getConfig().getBoolean("rest-api.enabled", true);
-        boolean apiRunning = plugin.getRestApiServer() != null && plugin.getRestApiServer().isRunning();
-        int apiPort = plugin.getConfig().getInt("rest-api.port", 8766);
-        sender.sendMessage(ChatColor.YELLOW + "REST API: " + 
-            (apiEnabled ? (apiRunning ? ChatColor.GREEN + "Running on port " + apiPort : ChatColor.RED + "Error") : ChatColor.GRAY + "Disabled"));
+        // WebSocket 连接详情
+        if (plugin.getWebSocketServer() != null && plugin.getWebSocketServer().isRunning()) {
+            int connectedClients = plugin.getWebSocketServer().getConnectedClients();
+            sender.sendMessage(ChatColor.YELLOW + "已连接客户端: " + ChatColor.WHITE + connectedClients);
+            
+            if (connectedClients > 0) {
+                java.util.List<String> connections = plugin.getWebSocketServer().getConnectionDetails();
+                sender.sendMessage(ChatColor.GRAY + "连接详情:");
+                for (int i = 0; i < connections.size(); i++) {
+                    sender.sendMessage(ChatColor.GRAY + "  " + (i + 1) + ". " + ChatColor.WHITE + connections.get(i));
+                }
+            }
+        } else {
+            sender.sendMessage(ChatColor.YELLOW + "已连接客户端: " + ChatColor.GRAY + "0 (服务未运行)");
+        }
         
-        // Connected clients
-        int connectedClients = plugin.getWebSocketServer() != null ? plugin.getWebSocketServer().getConnectedClients() : 0;
-        sender.sendMessage(ChatColor.YELLOW + "Connected Clients: " + ChatColor.WHITE + connectedClients);
+        sender.sendMessage(ChatColor.GOLD + "=============================");
+    }
+    
+    private void sendServerStatus(CommandSender sender, String name, String configKey, Object server, Object runningChecker) {
+        boolean enabled = plugin.getConfig().getBoolean(configKey + ".enabled", true);
+        boolean running = server != null && (runningChecker instanceof io.github.railgun19457.astrbotadapter.server.WebSocketServer 
+            ? ((io.github.railgun19457.astrbotadapter.server.WebSocketServer) runningChecker).isRunning()
+            : ((io.github.railgun19457.astrbotadapter.server.RestApiServer) runningChecker).isRunning());
+        int port = plugin.getConfig().getInt(configKey + ".port");
         
-        sender.sendMessage(ChatColor.GOLD + "===================================");
+        String status = enabled 
+            ? (running ? ChatColor.GREEN + "运行中，端口 " + port : ChatColor.RED + "错误")
+            : ChatColor.GRAY + "已禁用";
+        sender.sendMessage(ChatColor.YELLOW + name + ": " + status);
     }
 }

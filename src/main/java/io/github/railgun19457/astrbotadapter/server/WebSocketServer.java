@@ -85,6 +85,10 @@ public class WebSocketServer {
         return server != null ? server.getConnectedClients() : 0;
     }
     
+    public java.util.List<String> getConnectionDetails() {
+        return server != null ? server.getConnectionDetails() : java.util.Collections.emptyList();
+    }
+    
     public boolean isRunning() {
         return server != null && server.isRunning();
     }

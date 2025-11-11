@@ -58,68 +58,52 @@ public class MessageManager {
      * Send a chat message from Minecraft to external service
      */
     public void sendToExternal(String player, String message) {
-        if (plugin.getWebSocketServer() != null) {
-            try {
-                int clients = plugin.getWebSocketServer().getConnectedClients();
-                plugin.getWebSocketServer().broadcastChatMessage(player, message);
-                plugin.debug("Sent chat message to external: [" + player + "] " + message);
-
-                // Notify the player on the main thread about the result
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
-                    if (p != null && p.isOnline()) {
-                        if (clients > 0) {
-                            p.sendMessage(ChatColor.GREEN + "[OK] " + ChatColor.GRAY + "消息已成功转发到外部服务。");
-                        } else {
-                            p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：没有可用的外部客户端连接。");
-                        }
-                    }
-                });
-
-            } catch (Exception e) {
-                plugin.getLogger().warning("Error sending chat to external: " + e.getMessage());
-                plugin.debug("Error sending chat to external: " + e.toString());
-
-                // Notify the player about failure
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
-                    if (p != null && p.isOnline()) {
-                        p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：" + e.getMessage());
-                    }
-                });
-            }
-        } else {
-            // No websocket server available - notify player
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
-                if (p != null && p.isOnline()) {
-                    p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：外部服务未启用。");
-                }
-            });
+        if (plugin.getWebSocketServer() == null) {
+            notifyPlayer(player, ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：外部服务未启用。");
+            return;
         }
+        
+        try {
+            int clients = plugin.getWebSocketServer().getConnectedClients();
+            plugin.getWebSocketServer().broadcastChatMessage(player, message);
+            plugin.debug("Sent chat message to external: [" + player + "] " + message);
+            
+            String notification = clients > 0
+                ? ChatColor.GREEN + "[OK] " + ChatColor.GRAY + "消息已成功转发到外部服务。"
+                : ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：没有可用的外部客户端连接。";
+            notifyPlayer(player, notification);
+            
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error sending chat to external: " + e.getMessage());
+            plugin.debug("Error sending chat to external: " + e.toString());
+            notifyPlayer(player, ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：" + e.getMessage());
+        }
+    }
+    
+    private void notifyPlayer(String playerName, String message) {
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(playerName);
+            if (p != null && p.isOnline()) {
+                p.sendMessage(message);
+            }
+        });
     }
     
     /**
      * Send player join notification to external service
      */
     public void notifyPlayerJoin(String player) {
-        if (plugin.getConfig().getBoolean("message.notify-join", true)) {
-            if (plugin.getWebSocketServer() != null) {
-                plugin.getWebSocketServer().broadcastPlayerJoin(player);
-                plugin.debug("Notified player join: " + player);
-            }
-        }
+        notifyPlayerEvent(player, "notify-join", ws -> ws.broadcastPlayerJoin(player), "join");
     }
     
-    /**
-     * Send player leave notification to external service
-     */
     public void notifyPlayerLeave(String player) {
-        if (plugin.getConfig().getBoolean("message.notify-leave", true)) {
-            if (plugin.getWebSocketServer() != null) {
-                plugin.getWebSocketServer().broadcastPlayerLeave(player);
-                plugin.debug("Notified player leave: " + player);
-            }
+        notifyPlayerEvent(player, "notify-leave", ws -> ws.broadcastPlayerLeave(player), "leave");
+    }
+    
+    private void notifyPlayerEvent(String player, String configKey, java.util.function.Consumer<io.github.railgun19457.astrbotadapter.server.WebSocketServer> broadcaster, String eventType) {
+        if (plugin.getConfig().getBoolean("message." + configKey, true) && plugin.getWebSocketServer() != null) {
+            broadcaster.accept(plugin.getWebSocketServer());
+            plugin.debug("Notified player " + eventType + ": " + player);
         }
     }
 }

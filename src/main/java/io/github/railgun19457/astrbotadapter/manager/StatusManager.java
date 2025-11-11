@@ -51,25 +51,25 @@ public class StatusManager {
         }
     }
     
-    /**
-     * Get complete server status
-     * This method is thread-safe and can be called from any thread
-     */
     public JsonObject getStatus() {
-        // If we're already on the main thread, get status directly
+        return executeOnMainThread(this::getStatusSync, "Failed to get status");
+    }
+    
+    public JsonObject getPlayersInfo() {
+        return executeOnMainThread(this::getPlayersInfoSync, "Failed to get players info");
+    }
+    
+    private JsonObject executeOnMainThread(java.util.function.Supplier<JsonObject> supplier, String errorMessage) {
         if (Bukkit.isPrimaryThread()) {
-            return getStatusSync();
+            return supplier.get();
         }
         
-        // Otherwise, schedule on main thread and wait for result
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
-        
         new BukkitRunnable() {
             @Override
             public void run() {
                 try {
-                    JsonObject status = getStatusSync();
-                    future.complete(status);
+                    future.complete(supplier.get());
                 } catch (Exception e) {
                     future.completeExceptionally(e);
                 }
@@ -77,21 +77,15 @@ public class StatusManager {
         }.runTask(plugin);
         
         try {
-            // Wait up to 5 seconds for the result
             return future.get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            plugin.getLogger().warning("Failed to get status: " + e.getMessage());
-            // Return basic status on error
-            JsonObject errorStatus = new JsonObject();
-            errorStatus.addProperty("online", true);
-            errorStatus.addProperty("error", "Failed to get complete status: " + e.getMessage());
-            return errorStatus;
+            plugin.getLogger().warning(errorMessage + ": " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("error", errorMessage + ": " + e.getMessage());
+            return error;
         }
     }
     
-    /**
-     * Get server status synchronously (must be called from main thread)
-     */
     private JsonObject getStatusSync() {
         JsonObject status = new JsonObject();
         
@@ -130,44 +124,6 @@ public class StatusManager {
         return status;
     }
     
-    /**
-     * Get detailed players information
-     * This method is thread-safe and can be called from any thread
-     */
-    public JsonObject getPlayersInfo() {
-        // If we're already on the main thread, get info directly
-        if (Bukkit.isPrimaryThread()) {
-            return getPlayersInfoSync();
-        }
-        
-        // Otherwise, schedule on main thread and wait for result
-        CompletableFuture<JsonObject> future = new CompletableFuture<>();
-        
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    JsonObject info = getPlayersInfoSync();
-                    future.complete(info);
-                } catch (Exception e) {
-                    future.completeExceptionally(e);
-                }
-            }
-        }.runTask(plugin);
-        
-        try {
-            return future.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            plugin.getLogger().warning("Failed to get players info: " + e.getMessage());
-            JsonObject errorInfo = new JsonObject();
-            errorInfo.addProperty("error", "Failed to get players info: " + e.getMessage());
-            return errorInfo;
-        }
-    }
-    
-    /**
-     * Get players information synchronously (must be called from main thread)
-     */
     private JsonObject getPlayersInfoSync() {
         JsonObject info = new JsonObject();
         
