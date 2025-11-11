@@ -8,6 +8,7 @@ import io.github.railgun19457.astrbotadapter.server.WebSocketServer;
 import io.github.railgun19457.astrbotadapter.manager.MessageManager;
 import io.github.railgun19457.astrbotadapter.manager.StatusManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.HandlerList;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -76,6 +77,7 @@ public class AstrbotAdapter extends JavaPlugin {
     
     private void registerCommands() {
         getCommand("astrbot").setExecutor(new AstrbotCommand(this));
+        getCommand("astrbot").setTabCompleter(new io.github.railgun19457.astrbotadapter.command.AstrbotTabCompleter());
         getLogger().info("Commands registered.");
     }
     
@@ -139,6 +141,15 @@ public class AstrbotAdapter extends JavaPlugin {
         
         // Reload config
         reloadConfig();
+        // Ensure required tokens exist if still placeholders/empty
+        generateTokensIfNeeded();
+
+        // Re-register listeners to refresh any cached config values (e.g., forward prefix)
+        try {
+            HandlerList.unregisterAll(this);
+        } catch (Exception ignored) {
+            // Safe guard: continue even if no handlers were registered yet
+        }
         
         // Restart managers
         if (statusManager != null) {
@@ -146,6 +157,8 @@ public class AstrbotAdapter extends JavaPlugin {
         }
         messageManager = new MessageManager(this);
         statusManager = new StatusManager(this);
+        // Re-register listeners (ChatListener caches config in constructor)
+        registerListeners();
         
         // Restart servers
         startServers();

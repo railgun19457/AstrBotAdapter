@@ -61,8 +61,43 @@ public class MessageManager {
      */
     public void sendToExternal(String player, String message) {
         if (plugin.getWebSocketServer() != null) {
-            plugin.getWebSocketServer().broadcastChatMessage(player, message);
-            plugin.debug("Sent chat message to external: [" + player + "] " + message);
+            try {
+                int clients = plugin.getWebSocketServer().getConnectedClients();
+                plugin.getWebSocketServer().broadcastChatMessage(player, message);
+                plugin.debug("Sent chat message to external: [" + player + "] " + message);
+
+                // Notify the player on the main thread about the result
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
+                    if (p != null && p.isOnline()) {
+                        if (clients > 0) {
+                            p.sendMessage(ChatColor.GREEN + "[OK] " + ChatColor.GRAY + "消息已成功转发到外部服务。");
+                        } else {
+                            p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：没有可用的外部客户端连接。");
+                        }
+                    }
+                });
+
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error sending chat to external: " + e.getMessage());
+                plugin.debug("Error sending chat to external: " + e.toString());
+
+                // Notify the player about failure
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
+                    if (p != null && p.isOnline()) {
+                        p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：" + e.getMessage());
+                    }
+                });
+            }
+        } else {
+            // No websocket server available - notify player
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(player);
+                if (p != null && p.isOnline()) {
+                    p.sendMessage(ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：外部服务未启用。");
+                }
+            });
         }
     }
     
