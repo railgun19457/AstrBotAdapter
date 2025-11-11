@@ -1,53 +1,55 @@
-# AstrBot Adaptor Configuration
+# AstrBot 适配器 配置文件
 
-# WebSocket Server Settings
+# WebSocket 服务器设置
 websocket:
   enabled: true
-  host: "0.0.0.0"
-  port: 8765
-  # Token for authentication (will be auto-generated on first start)
+  host: "0.0.0.0"      # 监听地址（一般保持 0.0.0.0 即可）
+  port: 8765            # 监听端口
+  # 认证 Token（首次启动若为空，将自动生成并写回配置）
   token: "your_secure_token_here"
-  # Rate limit settings
+  # 速率限制设置
   rate-limit:
     enabled: true
-    count: 5          # Max chat messages per window per client
-    window-ms: 3000   # Window length in milliseconds
+    count: 5          # 每个连接在一个时间窗口内允许的最大聊天消息条数
+    window-ms: 3000   # 时间窗口长度（毫秒）
 
-# REST API Settings
+# REST API 设置
 rest-api:
   enabled: true
-  host: "0.0.0.0"
-  port: 8766
-  # Token for authentication (will be auto-generated on first start)
+  host: "0.0.0.0"      # 监听地址（一般保持 0.0.0.0 即可）
+  port: 8766            # 监听端口
+  # 认证 Token（首次启动若为空，将自动生成并写回配置）
   token: "your_secure_token_here"
 
-# Message Settings
+# 消息设置
 message:
-  # Message forward prefix - only messages starting with this prefix will be forwarded
-  # Leave empty ("") to forward all messages
-  # Example: "!" means only messages like "!hello" will be forwarded
+  # 转发前缀：只有以此前缀开头的消息才会被转发到外部
+  # 留空（""）表示转发所有消息
+  # 例如：设置为 "!" 时，只有 "!hello" 这样的消息才会被转发
+  # 转发时会自动移除前缀
   forward-prefix: ""
-  # Format for messages sent to AstrBot
-  # Placeholders: {player}, {message}
+  # 发送到 AstrBot 的消息格式
+  # 可用占位符：{player}, {message}
   chat-format: "[{player}] {message}"
-  # Format for messages sent to Minecraft from AstrBot
-  # Placeholders: {sender}, {message}
-  # 注意：当 sender 或 message 缺省或为空时，会把对应占位符替换为 ""（空串）
+  # 从 AstrBot 发回并在 Minecraft 内展示的消息格式
+  # 可用占位符：{sender}, {message}
+  # 注意：当 sender 或 message 缺省或为空时，会把对应占位符替换为 ""
   incoming-format: "§7[§bAstrBot§7] §7<§e{sender}§7> §f{message}"
-  # Enable player join/leave notifications
+  # 是否启用玩家加入/离开提示广播
   notify-join: true
   notify-leave: true
+  # 加入/离开提示的格式（可使用 {player}）
   join-format: "§7{player} joined the game"
   leave-format: "§7{player} left the game"
 
-# Server Status Settings
+# 服务器状态设置
 status:
-  # Update interval in seconds
+  # 状态刷新间隔（秒）
   update-interval: 30
-  # Enable TPS monitoring
+  # 是否启用 TPS 监测
   enable-tps: true
-  # Enable memory monitoring
+  # 是否启用内存监测
   enable-memory: true
 
-# Debug mode
+# 调试模式（开启后会输出更多日志）
 debug: false

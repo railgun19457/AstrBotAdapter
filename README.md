@@ -124,25 +124,23 @@ message:
 
 - `forward-prefix: ""` - 转发所有聊天消息（默认）
 - `forward-prefix: "!"` - 只转发以 `!` 开头的消息（如 `!hello world`）
-- `forward-prefix: "#"` - 只转发以 `#` 开头的消息（如 `#status`）
-- `forward-prefix: "@bot"` - 只转发以 `@bot` 开头的消息（如 `@bot help`）
 
 **注意：** 转发时会自动移除前缀。例如，设置 `forward-prefix: "!"`，玩家发送 `!hello`，外部服务收到的消息是 `hello`。
 
 ## 文档
 
-- 📖 [API 文档](API.md) - 完整 API 说明
-- 🏗️ [项目结构](STRUCTURE.md) - 代码结构和扩展指南
+- 📖 [API 文档](API.md)
+- 🏗️ [项目结构](STRUCTURE.md)
 
 ## 编译
 
 需要 Java 17 和 Maven 3.6+：
 
 ```bash
-mvn clean package
+mvn clean compile package
 ```
 
-编译后的 jar 文件位于 `target/AstrbotAdapter-1.0.0.jar`
+编译后的 jar 文件位于 `target/AstrbotAdapter-*.*.*.jar`
 
 ## 开源协议
 

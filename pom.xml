@@ -6,7 +6,7 @@
 
     <groupId>io.github.railgun19457</groupId>
     <artifactId>AstrbotAdapter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>AstrbotAdapter</name>

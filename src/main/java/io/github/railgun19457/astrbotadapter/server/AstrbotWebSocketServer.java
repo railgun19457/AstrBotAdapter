@@ -41,6 +41,12 @@ public class AstrbotWebSocketServer extends WebSocketServer {
         
         // Set connection timeout
         setConnectionLostTimeout(30);
+        // Allow quick rebind after reload to avoid 'Address already in use' on fast restarts
+        try {
+            this.setReuseAddr(true);
+        } catch (Throwable ignored) {
+            // setReuseAddr may not exist on some library versions; ignore gracefully
+        }
     }
     
     @Override

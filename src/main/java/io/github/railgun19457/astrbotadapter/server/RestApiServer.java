@@ -11,6 +11,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.BindException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -34,28 +35,51 @@ public class RestApiServer {
     }
     
     public void start() {
+        // Try quick-retry on bind conflict to mitigate fast reload race (e.g., pluginmanX)
+        IOException lastErr = null;
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            try {
+                server = HttpServer.create(new InetSocketAddress(host, port), 0);
+                break;
+            } catch (IOException e) {
+                lastErr = e;
+                if (e instanceof BindException) {
+                    plugin.getLogger().warning(
+                        String.format("REST API port %s:%d in use, retrying in 1s (%d/2)...", host, port, attempt)
+                    );
+                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                } else {
+                    plugin.getLogger().log(Level.SEVERE, "Failed to start REST API server", e);
+                    return;
+                }
+            }
+        }
+        if (server == null) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to bind REST API port after retries", lastErr);
+            return;
+        }
+
         try {
-            server = HttpServer.create(new InetSocketAddress(host, port), 0);
             server.setExecutor(Executors.newFixedThreadPool(4));
-            
+
             // Register endpoints
             server.createContext("/api/status", new StatusHandler());
             server.createContext("/api/players", new PlayersHandler());
             server.createContext("/api/command", new CommandHandler());
             server.createContext("/api/message", new MessageHandler());
-            
+
             server.start();
             running = true;
             plugin.getLogger().info("REST API server started successfully!");
-            
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to start REST API server", e);
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to initialize REST API server", e);
         }
     }
     
     public void stop() {
         if (server != null) {
             server.stop(0);
+            server = null;
             running = false;
         }
     }
