@@ -80,6 +80,32 @@ public class MessageManager {
         }
     }
     
+    /**
+     * Send an AI chat message from Minecraft to external service
+     */
+    public void sendAiChatToExternal(String player, String message) {
+        if (plugin.getWebSocketServer() == null) {
+            notifyPlayer(player, ChatColor.RED + "[AI] " + ChatColor.GRAY + "AI 服务未启用。");
+            return;
+        }
+        
+        try {
+            int clients = plugin.getWebSocketServer().getConnectedClients();
+            plugin.getWebSocketServer().broadcastAiChat(player, message);
+            plugin.debug("Sent AI chat message to external: [" + player + "] " + message);
+            
+            String notification = clients > 0
+                ? ChatColor.GREEN + "[AI] " + ChatColor.GRAY + "AI 对话已发送..."
+                : ChatColor.RED + "[AI] " + ChatColor.GRAY + "发送失败：没有可用的 AI 服务连接。";
+            notifyPlayer(player, notification);
+            
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error sending AI chat to external: " + e.getMessage());
+            plugin.debug("Error sending AI chat to external: " + e.toString());
+            notifyPlayer(player, ChatColor.RED + "[AI] " + ChatColor.GRAY + "发送失败：" + e.getMessage());
+        }
+    }
+    
     private void notifyPlayer(String playerName, String message) {
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             org.bukkit.entity.Player p = plugin.getServer().getPlayerExact(playerName);

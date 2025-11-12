@@ -69,6 +69,12 @@ public class WebSocketServer {
         }
     }
     
+    public void broadcastAiChat(String player, String message) {
+        if (server != null) {
+            server.broadcastAiChat(player, message);
+        }
+    }
+    
     public void broadcastPlayerJoin(String player) {
         if (server != null) {
             server.broadcastPlayerJoin(player);

@@ -7,6 +7,7 @@ import io.github.railgun19457.astrbotadapter.server.RestApiServer;
 import io.github.railgun19457.astrbotadapter.server.WebSocketServer;
 import io.github.railgun19457.astrbotadapter.manager.MessageManager;
 import io.github.railgun19457.astrbotadapter.manager.StatusManager;
+import io.github.railgun19457.astrbotadapter.util.ConfigUpdater;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.HandlerList;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -32,6 +33,7 @@ public class AstrbotAdapter extends JavaPlugin {
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        new ConfigUpdater(this).updateConfig();
         generateTokensIfNeeded();
         
         logSeparator();

@@ -262,6 +262,16 @@ public class AstrbotWebSocketServer extends WebSocketServer {
         broadcast(gson.toJson(json));
     }
     
+    public void broadcastAiChat(String player, String message) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "ai_chat");
+        json.addProperty("player", player);
+        json.addProperty("message", message);
+        json.addProperty("timestamp", System.currentTimeMillis());
+        
+        broadcast(gson.toJson(json));
+    }
+    
     public void broadcastPlayerJoin(String player) {
         JsonObject json = new JsonObject();
         json.addProperty("type", "player_join");

@@ -28,6 +28,11 @@ message:
   # 例如：设置为 "!" 时，只有 "!hello" 这样的消息才会被转发
   # 转发时会自动移除前缀
   forward-prefix: ""
+  # AI 对话前缀：以此前缀开头的消息会作为 AI 对话转发
+  # 留空（""）表示禁用 AI 对话功能
+  # 例如：设置为 "!ai" 时，"!ai hello" 会触发 AI 对话
+  # AI 对话消息会以 type="ai_chat" 发送，与普通聊天消息分开
+  ai-chat-prefix: "!ai"
   # 发送到 AstrBot 的消息格式
   # 可用占位符：{player}, {message}
   chat-format: "[{player}] {message}"

@@ -13,11 +13,13 @@ public class ChatListener implements Listener {
     
     private final AstrbotAdapter plugin;
     private final String forwardPrefix;
+    private final String aiChatPrefix;
     private final boolean usePaperEvent;
     
     public ChatListener(AstrbotAdapter plugin) {
         this.plugin = plugin;
         this.forwardPrefix = plugin.getConfig().getString("message.forward-prefix", "");
+        this.aiChatPrefix = plugin.getConfig().getString("message.ai-chat-prefix", "");
         
         // Detect if Paper's AsyncChatEvent is available
         boolean paperEventAvailable = false;
@@ -45,7 +47,14 @@ public class ChatListener implements Listener {
             
             plugin.debug("Paper AsyncChatEvent triggered for: " + player + " - " + message);
             
-            // Check if message should be forwarded
+            // Check if this is an AI chat message
+            if (isAiChat(message)) {
+                String aiMessage = removeAiPrefix(message);
+                plugin.getMessageManager().sendAiChatToExternal(player, aiMessage);
+                return;
+            }
+            
+            // Check if message should be forwarded as normal chat
             if (shouldForward(message)) {
                 // Remove prefix if it exists
                 String forwardMessage = removePrefix(message);
@@ -69,12 +78,36 @@ public class ChatListener implements Listener {
         
         plugin.debug("Spigot AsyncPlayerChatEvent triggered for: " + player + " - " + message);
         
-        // Check if message should be forwarded
+        // Check if this is an AI chat message
+        if (isAiChat(message)) {
+            String aiMessage = removeAiPrefix(message);
+            plugin.getMessageManager().sendAiChatToExternal(player, aiMessage);
+            return;
+        }
+        
+        // Check if message should be forwarded as normal chat
         if (shouldForward(message)) {
             // Remove prefix if it exists
             String forwardMessage = removePrefix(message);
             plugin.getMessageManager().sendToExternal(player, forwardMessage);
         }
+    }
+    
+    /**
+     * Check if message is an AI chat message
+     */
+    private boolean isAiChat(String message) {
+        return aiChatPrefix != null && !aiChatPrefix.isEmpty() && message.startsWith(aiChatPrefix);
+    }
+    
+    /**
+     * Remove AI chat prefix from message
+     */
+    private String removeAiPrefix(String message) {
+        if (isAiChat(message)) {
+            return message.substring(aiChatPrefix.length()).trim();
+        }
+        return message;
     }
     
     /**
