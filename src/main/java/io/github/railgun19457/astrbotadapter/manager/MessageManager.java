@@ -69,7 +69,8 @@ public class MessageManager {
             plugin.debug("Sent chat message to external: [" + player + "] " + message);
             
             String notification = clients > 0
-                ? ChatColor.GREEN + "[OK] " + ChatColor.GRAY + "消息已成功转发到外部服务。"
+                //? ChatColor.GREEN + "[OK] " + ChatColor.GRAY + "消息已成功转发到外部服务。"
+                ? ChatColor.GRAY + "消息已成功转发到外部服务。"                
                 : ChatColor.RED + "[ERR] " + ChatColor.GRAY + "转发失败：没有可用的外部客户端连接。";
             notifyPlayer(player, notification);
             
@@ -95,7 +96,8 @@ public class MessageManager {
             plugin.debug("Sent AI chat message to external: [" + player + "] " + message);
             
             String notification = clients > 0
-                ? ChatColor.GREEN + "[AI] " + ChatColor.GRAY + "AI 对话已发送..."
+                //? ChatColor.GREEN + "[AI] " + ChatColor.GRAY + "AI 对话已发送..."
+                ? ChatColor.GRAY + "AI 对话已发送..."
                 : ChatColor.RED + "[AI] " + ChatColor.GRAY + "发送失败：没有可用的 AI 服务连接。";
             notifyPlayer(player, notification);
             

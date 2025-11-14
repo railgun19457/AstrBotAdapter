@@ -115,11 +115,22 @@ public class RestApiServer {
     }
 
     /**
+     * Add CORS headers to response
+     */
+    private void addCorsHeaders(HttpExchange exchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        exchange.getResponseHeaders().set("Access-Control-Max-Age", "3600");
+    }
+
+    /**
      * Low-level send of already serialized JSON.
      */
     private void writeJson(HttpExchange exchange, int statusCode, String json) throws IOException {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+        addCorsHeaders(exchange);
         exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
@@ -159,6 +170,14 @@ public class RestApiServer {
     private class StatusHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
             if (!authenticate(exchange)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
@@ -183,6 +202,14 @@ public class RestApiServer {
     private class PlayersHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
             if (!authenticate(exchange)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
@@ -207,6 +234,14 @@ public class RestApiServer {
     private class CommandHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
             if (!authenticate(exchange)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
@@ -264,6 +299,14 @@ public class RestApiServer {
     private class MessageHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
             if (!authenticate(exchange)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
